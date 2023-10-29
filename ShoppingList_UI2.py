@@ -81,11 +81,11 @@ def create_item_buttons():
         item_frame.columnconfigure(2, weight=1)
         item_frame.columnconfigure(3, weight=1)
 
-        item_name_label = tk.Label(item_frame, text=f"{item.name}  Quantity: {item_count}")
+        item_name_label = tk.Label(item_frame, text=f"{item.name} - Quantity: {item.count}")
         item_name_label.grid(row=0, column=0, sticky="w")
         def update_item_quantity_label(item_id):
             item = items_map[item_id]
-            item_name_label.config(text=f"{item.name}  Quantity: {item.count}")
+            item_name_label.config(text=f"{item.name} - Quantity: {item.count}")
 
         add_button = tk.Button(item_frame, text="+", font=(FONTS[0], 12), command=lambda i=item_id: item_button_click(i, increment=True))
         add_button.grid(row=0, column=1)
