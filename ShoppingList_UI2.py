@@ -1,5 +1,6 @@
 import tkinter as tk
 from enum import Enum
+from tkinter import messagebox
 
 #TODO Change quantity count on button
 #TODO Allow user to remove items once at max quantity, and add more after
@@ -68,11 +69,13 @@ def item_button_click(item_id, btn = BtnType.ADD):
     if btn == BtnType.ADD:
         if item_count == 15:
             message_label.config(text="Maximum quantity reached (15 items)", fg="red")
+            message_label.config().pack()
         else: 
             item.add_n(1)
         
     elif btn == BtnType.REMOVE:
         item.remove_n(1)
+    
         
     
     
