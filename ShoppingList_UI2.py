@@ -1,6 +1,7 @@
 import tkinter as tk
 from enum import Enum
 from tkinter import messagebox
+from Item import Item
 
 #TODO Change quantity count on button
 #TODO Allow user to remove items once at max quantity, and add more after
@@ -9,29 +10,11 @@ class BtnType(Enum):
     REMOVE = 2
     SUBMIT = 3
 
-class Item():
-    def __init__(self, item_id, name, price, count):
-        self.item_id = item_id
-        self.name = name
-        self.price = price
-        self.count = count
 
-    def get_item_info(self):
-        return self.item_id, self.name, f'£{self.price:.2f}', self.count
-
-    def add_n(self, n):
-        self.count += n
-
-    def remove_n(self, n):
-        if self.count >= n:
-            self.count -= n
-            return True
-        else:
-            self.count = 0
-            return False
 
 # Tkinter window
 root = tk.Tk()
+root.geometry("200x480")
 root.title("Shopping Cart")
 
 FONTS = [
@@ -55,8 +38,8 @@ items_map = {
 item_count=0
 
 # Listbox to display items and quantities
-item_listbox = tk.Listbox(root, selectmode=tk.SINGLE)
-
+item_listbox = tk.Listbox(root, selectmode=tk.SINGLE,width=30, height=10)
+                        
 
 # Frame within which buttons will be placed
 display_frame = tk.Frame(root, bg="purple")
@@ -137,6 +120,7 @@ def update_item_listbox():
     item_listbox.delete(0, tk.END)
     for item_id, item in items_map.items():
         item_listbox.insert(tk.END, f"{item.name} - Quantity: {item.count}")
+        item_listbox.pack()
 
 update_item_listbox()
 
@@ -147,7 +131,7 @@ def remove_item():
     update_item_listbox()
     update_total()
 
-remove_button = tk.Button(root, text="Remove items", command=remove_item)
+remove_button = tk.Button(root, text="Remove all", command=remove_item)
 remove_button.pack()
 
 # Button to update item information
