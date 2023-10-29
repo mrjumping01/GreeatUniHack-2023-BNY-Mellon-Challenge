@@ -21,98 +21,100 @@ class Item():
             self.count = 0
             return False
 
-#Tkinter window
+# Tkinter window
 root = tk.Tk()
-root.title("Item Management")
+root.title("Shopping Cart")
 
-FONTS = ["Arial", 
-                "Times New Roman", 
-                "Courier New", 
-                "Verdana", 
-                "Comic Sans MS", 
-                "Impact"]
+FONTS = [
+    "Arial",
+    "Times New Roman",
+    "Courier New",
+    "Verdana",
+    "Comic Sans MS",
+    "Impact"
+]
 
 # Initialize your items
 ids_list = ["apl001", "mil001", "ck001"]
 prices = [2.45, 1, 8]
-names = ["apple", "milk", "cake"]
+names = ["1KGApple", "1LMilk", "1KgCake"]
 
 items_map = {
     ids_list[i]: Item(f"{ids_list[i]}", f"{names[i]}", prices[i], 0) for i in range(len(ids_list))
 }
 
-item_count = 0
+item_count=0
 
 # Listbox to display items and quantities
 item_listbox = tk.Listbox(root, selectmode=tk.SINGLE)
-item_listbox.pack()
 
-# frame within which buttons will be placed
-display_frame = tk.Frame(root, bg="white")
-display_frame.columnconfigure(0, weight=1) # nth column fills available x-axis space 
-display_frame.columnconfigure(1, weight=10) # nth column fills available x-axis space 
-display_frame.columnconfigure(2, weight=1) # nth column fills available x-axis space 
-display_frame.columnconfigure(3, weight=1) # nth column fills available x-axis space 
 
-# buttons and place them in the frame
+# Frame within which buttons will be placed
+display_frame = tk.Frame(root, bg="purple")
+display_frame.pack(fill="x")
+
+# Buttons and place them in the frame
 def item_button_click(item_id, increment=True):
     item = items_map[item_id]
     if increment:
-        if item_count >= 15:
-            message_label.config(text="Maximum quantity reached (15 items)", fg="red")
-        else:
-            item.add_n(1)
+        item.add_n(1)
     else:
         item.remove_n(1)
+        
     update_item_listbox()
     update_total()
-    message_label.config(text="")
+    
+    
+    # Check if item_count is over the allowed limit
+    if item_count > 15:
+        message_label.config(text="Maximum quantity reached (15 items)", fg="red")
+    else:
+        message_label.config(text="Thank you for shopping with us!", fg="green")
 
 def create_item_buttons():
-    row_num = 0
-    for item_id in items_map:
+    for i, item_id in enumerate(items_map):
         item = items_map[item_id]
         item_frame = tk.Frame(display_frame)
-        item_frame.grid(row=row_num, column=0, columnspan=4, padx=10, pady=10, sticky="nsew")
+        item_frame.grid(row=i, column=0, columnspan=4, padx=10, pady=10, sticky="nsew")
         item_frame.columnconfigure(0, weight=1)
         item_frame.columnconfigure(1, weight=10)
         item_frame.columnconfigure(2, weight=1)
         item_frame.columnconfigure(3, weight=1)
-        
-        item_name_label = tk.Label(item_frame, text=f"{item.name} - Quantity: {item.count}")
-        item_name_label.grid(row=row_num, column=0, sticky="w")
+
+        item_name_label = tk.Label(item_frame, text=f"{item.name}  Quantity: {item_count}")
+        item_name_label.grid(row=0, column=0, sticky="w")
+        def update_item_quantity_label(item_id):
+            item = items_map[item_id]
+            item_name_label.config(text=f"{item.name}  Quantity: {item.count}")
 
         add_button = tk.Button(item_frame, text="+", font=(FONTS[0], 12), command=lambda i=item_id: item_button_click(i, increment=True))
-        add_button.grid(row=row_num, column=1)
+        add_button.grid(row=0, column=1)
 
         remove_button = tk.Button(item_frame, text="-", font=(FONTS[0], 12), command=lambda i=item_id: item_button_click(i, increment=False))
-        remove_button.grid(row=row_num, column=2)
-
-        row_num += 1
+        remove_button.grid(row=0, column=2)
 
 create_item_buttons()
 
-display_frame.pack(fill="x")
-
-#  label to display item information
+# Label to display item information
 info_label = tk.Label(root, text="Select an item to see details.")
 info_label.pack()
 
-#   frame for the message
+# Frame for the message
 message_frame = tk.Frame(root)
 message_frame.pack()
 
-# label to show the message in the message frame
+# Label to show the message in the message frame
 message_label = tk.Label(message_frame, text="", fg="red")
 message_label.pack()
 
-#label to display the total cost
+# Label to display the total cost
+# Label to display the total cost
 total_cost_label = tk.Label(root, text="Total Cost: £0.00")
 total_cost_label.pack()
 
-# entry field for user input
-entry = tk.Entry(root)
-entry.pack()
+
+total_cost_label.config(width=30)  
+
 
 def update_item_listbox():
     item_listbox.delete(0, tk.END)
@@ -121,14 +123,17 @@ def update_item_listbox():
 
 update_item_listbox()
 
-# button to remove items from the cart
-def remove_item(item_id):
-    item = items_map[item_id]
-    if item.remove_n(1):
-        update_item_listbox()
-        update_total()
+# Button to remove items from the cart
+def remove_item():
+    for item_id in items_map:
+        items_map[item_id].count = 0
+    update_item_listbox()
+    update_total()
 
-# button to update item information
+remove_button = tk.Button(root, text="Remove items", command=remove_item)
+remove_button.pack()
+
+# Button to update item information
 def update_info():
     selected_index = item_listbox.curselection()
     if selected_index:
@@ -140,25 +145,26 @@ def update_info():
 update_button = tk.Button(root, text="Get Item Info", command=update_info)
 update_button.pack()
 
+total_at_limit = 0
+
 # Function to update the total amount
 def update_total():
-    global item_count
+    global item_count, total_at_limit
+
     item_count = sum(item.count for item in items_map.values())
+    
     if item_count > 15:
         message_label.config(text="Maximum quantity reached (15 items)", fg="red")
     else:
-        message_label.config(text="", fg="red")
-    total = sum(item.price * item.count for item in items_map.values())
-    total_cost_label.config(text=f"Total Cost: £{total:.2f}")
+        message_label.config(text="")
+    
+    total_cost = sum(item.price * item.count for item in items_map.values())
+    total_at_limit = total_cost if item_count <= 15 else total_at_limit
+    total_cost_label.config(text=f"Total Cost: £{total_at_limit:.2f}")
 
-# button to show the total
-def show_total():
-    update_total()
 
-total_button = tk.Button(root, text="Show Total", command=show_total)
-total_button.pack()
 
-# button to exit the program
+# Button to exit the program
 exit_button = tk.Button(root, text="Exit", command=root.destroy)
 exit_button.pack()
 
