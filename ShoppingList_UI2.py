@@ -1,4 +1,12 @@
 import tkinter as tk
+from enum import Enum
+
+#TODO Change quantity count on button
+#TODO Allow user to remove items once at max quantity, and add more after
+class BtnType(Enum):
+    ADD = 1
+    REMOVE = 2
+    SUBMIT = 3
 
 class Item():
     def __init__(self, item_id, name, price, count):
@@ -53,23 +61,29 @@ item_listbox = tk.Listbox(root, selectmode=tk.SINGLE)
 display_frame = tk.Frame(root, bg="purple")
 display_frame.pack(fill="x")
 
+
 # Buttons and place them in the frame
-def item_button_click(item_id, increment=True):
+def item_button_click(item_id, btn = BtnType.ADD):
     item = items_map[item_id]
-    if increment:
-        item.add_n(1)
-    else:
+    if btn == BtnType.ADD:
+        if item_count == 15:
+            message_label.config(text="Maximum quantity reached (15 items)", fg="red")
+        else: 
+            item.add_n(1)
+        
+    elif btn == BtnType.REMOVE:
         item.remove_n(1)
         
-    update_item_listbox()
-    update_total()
+    
     
     
     # Check if item_count is over the allowed limit
-    if item_count > 15:
-        message_label.config(text="Maximum quantity reached (15 items)", fg="red")
     else:
         message_label.config(text="Thank you for shopping with us!", fg="green")
+        
+    update_item_listbox()
+    update_total()
+    print(f"new item count {item_count}")
 
 def create_item_buttons():
     for i, item_id in enumerate(items_map):
@@ -87,10 +101,10 @@ def create_item_buttons():
             item = items_map[item_id]
             item_name_label.config(text=f"{item.name} - Quantity: {item.count}")
 
-        add_button = tk.Button(item_frame, text="+", font=(FONTS[0], 12), command=lambda i=item_id: item_button_click(i, increment=True))
+        add_button = tk.Button(item_frame, text="+", font=(FONTS[0], 12), command=lambda i=item_id: item_button_click(i, btn = BtnType.ADD))
         add_button.grid(row=0, column=1)
 
-        remove_button = tk.Button(item_frame, text="-", font=(FONTS[0], 12), command=lambda i=item_id: item_button_click(i, increment=False))
+        remove_button = tk.Button(item_frame, text="-", font=(FONTS[0], 12), command=lambda i=item_id: item_button_click(i, btn = BtnType.REMOVE))
         remove_button.grid(row=0, column=2)
 
 create_item_buttons()
